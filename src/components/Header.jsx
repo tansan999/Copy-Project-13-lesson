@@ -1,19 +1,40 @@
-import styled from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 import BasketIcon from "../assets/basket.png";
+import { useContext, useEffect, useState } from "react";
+import { BasketContext } from "../store/BasketProvaider";
 
 // Header
 
 export default function Header(props) {
   // defauldprops  это ---->  mealsCount = 0 <-----статичное значение (0 ноль это defaul ный значение)
-  const { mealsCount = 0 } = props;
+  const { onOpen } = props;
+  const { meals } = useContext(BasketContext);
+  const [animation, setAnimation] = useState(false);
+
+  const mealCountReduse = meals.reduce((prev, curr) => {
+    return prev + +curr.amount;
+  }, 0);
+
+  useEffect(() => {
+    setAnimation(true);
+    const timer = setTimeout(() => {
+      setAnimation(false);
+    }, 500);
+    // clearTimeout(timer); ---> это нужно что бы очистить  не нужные данные 
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [meals]);
+
   return (
     <StyleHeader>
       <Wrapper>
         <Title>ReactMeals</Title>
-        <BasketWraper>
+        {/* при нажатии на <BasketWraper onClick={onOpen}> у нас открывается модальное окно при повторном закрывается   */}
+        <BasketWraper onClick={onOpen} $animation={animation}>
           <img src={BasketIcon} alt="Basket" />
           <YouCardDiv>Your Cart</YouCardDiv>
-          <CountOfMils>{mealsCount}</CountOfMils>
+          <CountOfMils>{mealCountReduse}</CountOfMils>
         </BasketWraper>
       </Wrapper>
     </StyleHeader>
@@ -43,6 +64,26 @@ const Title = styled.h1`
   font-weight: 600;
 `;
 
+const jumping = keyframes`
+  from{
+    transform: translateY(-5px);
+  }
+  to{
+    transform: translateY(5px);
+  }
+`;
+function animate(props) {
+  const { $animation } = props;
+
+  if (!$animation) {
+    return css``;
+  }
+
+  return css`
+    animation: ${jumping} 0.1s linear infinite alternate-reverse;
+  `;
+}
+
 const BasketWraper = styled.div`
   background-color: ${({ theme }) => theme.colors.darkCherry};
   border-radius: 30px;
@@ -50,6 +91,10 @@ const BasketWraper = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
+
+  img {
+    ${animate}
+  }
 `;
 
 const YouCardDiv = styled.div`

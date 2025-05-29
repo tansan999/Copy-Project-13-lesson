@@ -5,6 +5,9 @@ import { Summary } from "./components/Summary";
 import { Meals } from "./components/Meals";
 import { DUMMY_MEALS } from "./data/Index";
 import Button from "./components/UI/Button";
+import { Basket } from "./components/Basket";
+import Modal from "./components/UI/Modal";
+import { useState } from "react";
 
 // theme переменый для передачи цветов по  <ThemeProvider theme={theme}>
 const theme = {
@@ -17,16 +20,26 @@ const theme = {
 };
 
 function App() {
+  // при нажатии на Clouse закрываем модальное окно
+  const [isBasketOpen, setIsBasketOpen] = useState(false);
+
+  const basketHandler = () => {
+    setIsBasketOpen(!isBasketOpen);
+  };
+
   return (
     // <ThemeProvider theme={theme}> даю глобальный стиль (цвета) через theme
     <ThemeProvider theme={theme}>
       {/* при каждом инпорте  <GlobalStyles />  дает цепную реакцию  */}
       <GlobalStyles />
-      <Header />
+      <Header onOpen={basketHandler} />
       <Summary />
       <Meals DUMMY_MEALS={DUMMY_MEALS} />
-
-      <Button/>
+      {/*  оборачивем внутрь модалки */}
+      <Modal onClous={basketHandler} open={isBasketOpen}>
+        <Basket onClous={basketHandler} />
+      </Modal>
+      <Button />
     </ThemeProvider>
   );
 }

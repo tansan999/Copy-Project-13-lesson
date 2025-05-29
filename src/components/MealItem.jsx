@@ -1,21 +1,41 @@
 // Оно внутри meals : Карточки списков блюд
 
+import { useContext, useRef } from "react";
 import { BtnPlusAddDiv } from "../components/styles/StyleButton";
 import styled from "styled-components";
+import { BasketContext } from "../store/BasketProvaider";
 
 // stateFull ---- если есть компонент state
 // stateless ---- если без state но через props это
 export const MealItem = (props) => {
   const { description, id, price, title } = props;
+  const ctx = useContext(BasketContext);
+  const inputRef = useRef(null);
+
+  const OnSabmit = (e) => {
+    // e.preventDefault() ---> что бы страница не обновлялся при нажатии + Add
+    e.preventDefault();
+
+    const mealeInfo = {
+      id: id,
+      price: price,
+      title: title,
+      amount: inputRef.current.value
+    };
+    // перевод данные в ---> BasketContext через ctx
+    ctx.addToBasket(mealeInfo);
+  };
+
+  console.log("inputRef: ", inputRef);
   return (
-    <StyleDiv>
+    <StyleDiv onSubmit={OnSabmit}>
       <MealeItemDescription
         description={description}
         price={price}
         title={title}
       />
-
-      <MealItemAction />
+      {/* amaunt ---- количество  */}
+      <MealItemAction id={id} ref={inputRef} />
     </StyleDiv>
   );
 };
@@ -30,15 +50,22 @@ const MealeItemDescription = ({ description, price, title }) => {
   );
 };
 
-const MealItemAction = () => {
-  
+const MealItemAction = ({ id, ref }) => {
   return (
     <div>
       <div>
-        <StyledLabale htmlFor="">Amount</StyledLabale>
-        <StyledInput type="number" />
+        <StyledLabale htmlFor={`amount-input-${id}`}>Amount</StyledLabale>
+        {/* StyledInput ---- input */}
+        <StyledInput
+          id={`amount-input-${id}`}
+          ref={ref}
+          defaultValue="1"
+          // value={ref.current.value}
+          type="number"
+        />
       </div>
-      <BtnPlusAddDiv>+ Add</BtnPlusAddDiv>
+      {/*нажати + Add --- из input добавить в amount в количество */}
+      <BtnPlusAddDiv type="submit">+ Add</BtnPlusAddDiv>
     </div>
   );
 };
@@ -61,7 +88,7 @@ const StyledInput = styled.input`
   margin-left: 20px;
 `;
 
-const StyleDiv = styled.div`
+const StyleDiv = styled.form`
   display: flex;
   align-items: center;
   justify-content: space-between;

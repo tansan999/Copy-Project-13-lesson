@@ -11,7 +11,7 @@ import {
 } from "../styles/StyleButton";
 
 export default function Button() {
-   const [disabled, setDisabled] = useState(false);
+  const [disabled, setDisabled] = useState(false);
 
   const DisabledClick = () => {
     setDisabled(!disabled);
